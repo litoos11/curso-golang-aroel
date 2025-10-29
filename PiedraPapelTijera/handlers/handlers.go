@@ -2,19 +2,26 @@ package handlers
 
 import (
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 )
 
+const (
+	templateDir  = "templates/"
+	templateBase = templateDir + "base.html"
+)
+
 func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Inicio")
+	renderTemplate(w, "index.html", nil)
 }
 
 func NewGame(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Nuevo juego")
+	renderTemplate(w, "new-game.html", nil)
 }
 
 func Game(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Juego")
+	renderTemplate(w, "game.html", nil)
 }
 
 func Play(w http.ResponseWriter, r *http.Request) {
@@ -22,5 +29,16 @@ func Play(w http.ResponseWriter, r *http.Request) {
 }
 
 func About(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Acerca de")
+	renderTemplate(w, "about.html", nil)
+}
+
+func renderTemplate(w http.ResponseWriter, page string, data any) {
+	tmpl := template.Must(template.ParseFiles(templateBase, templateDir+page))
+
+	err := tmpl.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		http.Error(w, "Error al renderizar la plantilla", http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
 }
